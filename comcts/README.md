@@ -21,6 +21,30 @@ CUDA_VISIBLE_DEVICES='0,1,2,3,4,5,6,7' python code/run_comcts.py \
     --llama3_vision_11b_model_path 'meta-llama/Llama-3.2-11B-Vision-Instruct' 
 ```
 
+## 生成 MathVista 的“过程反思 + 视觉相关性”MCTS 数据（Qwen2-VL）
+
+本仓库额外提供了一个**单模型**的 MCTS 反思数据生成脚本：在扩展阶段对候选推理步进行多次采样，并使用 **Qwen2-VL 的跨模态隐藏状态**计算动作级“视觉相关性奖励”，再结合多次模拟得到的答案正确性与反思价值进行回溯更新，最终导出：
+
+- `output_search_jsonl`: 逐样本的搜索树/rollout/反思元数据（便于分析）
+- `output_train_json`: ShareGPT 格式训练数据（`messages` + `images`），可直接用于 LLaMA-Factory
+
+```bash
+python code/run_mcts_reflection_mathvista.py \
+  --data_path /path/to/mathvista.jsonl \
+  --image_root /path/to/mathvista_images \
+  --output_search_jsonl ./output/mathvista_mcts_search.jsonl \
+  --output_train_json ./output/mathvista_reflection_sft.json \
+  --model_path Qwen/Qwen2-VL-7B-Instruct \
+  --max_iterations 24 \
+  --num_expand 12 \
+  --keep_topk_by_vision 5 \
+  --num_rollouts 4 \
+  --vision_layer -2 \
+  --vision_tau 0.2
+```
+
+> 说明：该脚本会在每个节点对候选步骤做一次 forward（取 `hidden_states`）以计算视觉相关性，因此速度会明显慢于纯生成；建议先用 `MathVista_MINI` 或小子集验证流程。
+
 
 
 ## Input Data Examples

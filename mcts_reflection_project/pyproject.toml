@@ -1,0 +1,13 @@
+[project]
+name = "mcts_reflection"
+version = "0.1.0"
+description = "MCTS-based process-reflection data generation for multimodal reasoning (Qwen2-VL + MathVista)."
+requires-python = ">=3.10"
+dependencies = []
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
